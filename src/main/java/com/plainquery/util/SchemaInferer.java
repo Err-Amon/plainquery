@@ -26,19 +26,19 @@ public final class SchemaInferer {
 
     private SchemaInferer() {}
 
-    public static List<ColumnDefinition> infer(
+        public static List<ColumnDefinition> infer(
             List<String> headers,
-            List<String[]> sampleRows) {
+            List<String[]> rows) {
 
         Objects.requireNonNull(headers, "Headers must not be null");
-        Objects.requireNonNull(sampleRows, "Sample rows must not be null");
+        Objects.requireNonNull(rows, "Sample rows must not be null");
 
         int columnCount = headers.size();
         List<ColumnDefinition> definitions = new ArrayList<>(columnCount);
 
-        List<String[]> bounded = sampleRows.size() > MAX_SAMPLE_ROWS
-            ? sampleRows.subList(0, MAX_SAMPLE_ROWS)
-            : sampleRows;
+        List<String[]> bounded = rows.size() > MAX_SAMPLE_ROWS
+            ? rows.subList(0, MAX_SAMPLE_ROWS)
+            : rows;
 
         for (int col = 0; col < columnCount; col++) {
             String header = headers.get(col).trim();
@@ -145,4 +145,6 @@ public final class SchemaInferer {
         }
         return samples;
     }
+
+    
 }
