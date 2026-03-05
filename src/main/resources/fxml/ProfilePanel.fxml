@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plainquery.controller.ProfileController"
+      spacing="6" styleClass="profile-panel">
+
+    <padding><Insets top="10" bottom="10" left="8" right="8"/></padding>
+
+    <Label text="Data Profile" styleClass="panel-header"/>
+
+    <ComboBox fx:id="tableSelector"
+              promptText="Select table..."
+              maxWidth="Infinity"
+              onAction="#onTableSelected"
+              styleClass="table-selector"/>
+
+    <TableView fx:id="profileTable" VBox.vgrow="ALWAYS" styleClass="profile-table">
+        <columns>
+            <TableColumn fx:id="colNameCol"     text="Column"   prefWidth="90"/>
+            <TableColumn fx:id="colTypeCol"     text="Type"     prefWidth="55"/>
+            <TableColumn fx:id="colMinCol"      text="Min"      prefWidth="60"/>
+            <TableColumn fx:id="colMaxCol"      text="Max"      prefWidth="60"/>
+            <TableColumn fx:id="colDistinctCol" text="Distinct" prefWidth="60"/>
+            <TableColumn fx:id="colNullCol"     text="Nulls"    prefWidth="50"/>
+        </columns>
+    </TableView>
+
+    <Label fx:id="profileStatusLabel" text="" styleClass="status-label" wrapText="true"/>
+
+</VBox>

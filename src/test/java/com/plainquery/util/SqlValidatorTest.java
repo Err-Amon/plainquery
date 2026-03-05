@@ -1,69 +1,130 @@
 package com.plainquery.util;
 
 import com.plainquery.exception.SqlValidationException;
-import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class SqlValidatorTest {
+public class SqlValidatorTest {
 
     @Test
-    void testValidSelectQuery() {
-        assertDoesNotThrow(() -> SqlValidator.validate("SELECT * FROM users"), 
-            "Valid SELECT query should not throw exception");
+    void validSelectPasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT id, name FROM users"));
     }
 
     @Test
-    void testValidSelectWithWhere() {
-        assertDoesNotThrow(() -> SqlValidator.validate("SELECT name, age FROM users WHERE age > 18"), 
-            "Valid SELECT with WHERE should not throw exception");
+    void validSelectWithWherePasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT * FROM sales WHERE region = 'North'"));
     }
 
     @Test
-    void testInvalidUpdateQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate("UPDATE users SET name = 'test'"), 
-            "UPDATE query should throw validation exception");
+    void validSelectWithGroupByPasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT region, SUM(amount) FROM sales GROUP BY region"));
     }
 
     @Test
-    void testInvalidDeleteQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate("DELETE FROM users"), 
-            "DELETE query should throw validation exception");
+    void validSelectWithJoinPasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT a.id, b.name FROM orders a JOIN customers b ON a.cid = b.id"));
     }
 
     @Test
-    void testInvalidInsertQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate("INSERT INTO users VALUES (1, 'test')"), 
-            "INSERT query should throw validation exception");
+    void validSelectWithSubqueryPasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT * FROM (SELECT id, name FROM users WHERE active = 1)"));
     }
 
     @Test
-    void testInvalidCreateQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate("CREATE TABLE test (id INT)"), 
-            "CREATE TABLE query should throw validation exception");
+    void leadingWhitespacePasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("   SELECT 1"));
     }
 
     @Test
-    void testInvalidDropQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate("DROP TABLE users"), 
-            "DROP TABLE query should throw validation exception");
+    void insertRejected() {
+        SqlValidationException ex = assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("INSERT INTO users VALUES (1, 'test')"));
+        assertTrue(ex.getMessage().contains("SELECT") || ex.getMessage().contains("INSERT"));
     }
 
     @Test
-    void testEmptyQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate(""), 
-            "Empty query should throw validation exception");
+    void updateRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("UPDATE users SET name = 'x' WHERE id = 1"));
     }
 
     @Test
-    void testNullQuery() {
-        assertThrows(SqlValidationException.class, () -> SqlValidator.validate(null), 
-            "Null query should throw validation exception");
+    void deleteRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("DELETE FROM users WHERE id = 1"));
     }
 
     @Test
-    void testQueryWithLeadingWhitespace() {
-        assertDoesNotThrow(() -> SqlValidator.validate("   SELECT * FROM users   "), 
-            "Query with leading/trailing whitespace should be valid");
+    void dropRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("DROP TABLE users"));
+    }
+
+    @Test
+    void pragmaRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("SELECT * FROM users; PRAGMA table_info(users)"));
+    }
+
+    @Test
+    void attachRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("ATTACH DATABASE 'other.db' AS other"));
+    }
+
+    @Test
+    void semicolonRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("SELECT 1; SELECT 2"));
+    }
+
+    @Test
+    void emptyInputRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate(""));
+    }
+
+    @Test
+    void whitespaceOnlyRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("   "));
+    }
+
+    @Test
+    void nullInputThrowsNullPointer() {
+        assertThrows(NullPointerException.class, () ->
+            SqlValidator.validate(null));
+    }
+
+    @Test
+    void columnNamedCreatedAtPasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT created_at FROM events"));
+    }
+
+    @Test
+    void columnNamedUpdatedByPasses() {
+        assertDoesNotThrow(() ->
+            SqlValidator.validate("SELECT updated_by FROM audit_log"));
+    }
+
+    @Test
+    void createRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("CREATE TABLE foo (id INTEGER)"));
+    }
+
+    @Test
+    void alterRejected() {
+        assertThrows(SqlValidationException.class, () ->
+            SqlValidator.validate("ALTER TABLE users ADD COLUMN email TEXT"));
     }
 }

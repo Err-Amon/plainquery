@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plainquery.controller.SettingsController"
+      spacing="14" styleClass="settings-panel" minWidth="380">
+
+    <padding><Insets top="20" bottom="20" left="24" right="24"/></padding>
+
+    <Label text="Settings" styleClass="settings-header"/>
+
+    <Separator/>
+
+    <GridPane hgap="12" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="140"/>
+            <ColumnConstraints minWidth="180" prefWidth="220" hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="AI Provider:" GridPane.rowIndex="0" GridPane.columnIndex="0"
+               styleClass="settings-label"/>
+        <ComboBox fx:id="providerComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  maxWidth="Infinity" styleClass="settings-combo"/>
+
+        <Label text="API Key:" GridPane.rowIndex="1" GridPane.columnIndex="0"
+               styleClass="settings-label"/>
+        <PasswordField fx:id="apiKeyField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                       promptText="Enter API key..." styleClass="settings-field"/>
+
+        <Label text="Database Mode:" GridPane.rowIndex="2" GridPane.columnIndex="0"
+               styleClass="settings-label"/>
+        <VBox GridPane.rowIndex="2" GridPane.columnIndex="1" spacing="4">
+            <fx:define>
+                <ToggleGroup fx:id="dbModeGroup"/>
+            </fx:define>
+            <RadioButton fx:id="memoryModeRadio" text="In-Memory (faster)"
+                         toggleGroup="$dbModeGroup"/>
+            <RadioButton fx:id="fileModeRadio"   text="File-Based (larger files)"
+                         toggleGroup="$dbModeGroup"/>
+        </VBox>
+
+        <Label text="Preview Row Limit:" GridPane.rowIndex="3" GridPane.columnIndex="0"
+               styleClass="settings-label"/>
+        <Spinner fx:id="rowLimitSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                 maxWidth="Infinity" styleClass="settings-spinner"/>
+    </GridPane>
+
+    <Separator/>
+
+    <Label fx:id="statusLabel" text="" styleClass="status-label" wrapText="true"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancel" onAction="#onCancel" styleClass="secondary-button"/>
+        <Button text="Save"   onAction="#onSave"   styleClass="primary-button" defaultButton="true"/>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plainquery.controller.HistoryController"
+      spacing="0" styleClass="history-panel">
+
+    <VBox spacing="6" styleClass="history-search-section">
+        <padding><Insets top="10" bottom="6" left="10" right="10"/></padding>
+        <Label text="Query History" styleClass="panel-header"/>
+        <TextField fx:id="searchField"
+                   promptText="Search history..."
+                   onAction="#onSearch"
+                   styleClass="search-field"/>
+        <HBox spacing="6">
+            <Button text="Search" onAction="#onSearch" styleClass="secondary-button"/>
+            <Button text="Starred" onAction="#onShowStarred" styleClass="secondary-button"/>
+            <Button text="Recent" onAction="#onShowRecent" styleClass="secondary-button"/>
+        </HBox>
+    </VBox>
+
+    <ListView fx:id="historyListView"
+              VBox.vgrow="ALWAYS"
+              styleClass="history-list"/>
+
+    <HBox spacing="6" styleClass="history-footer">
+        <padding><Insets top="6" bottom="6" left="8" right="8"/></padding>
+        <Button fx:id="reloadButton"  text="Load Query" onAction="#onReloadSelected"
+                styleClass="secondary-button" disable="true"/>
+        <Button fx:id="starButton"    text="Star / Unstar" onAction="#onToggleStar"
+                styleClass="secondary-button" disable="true"/>
+        <Button fx:id="deleteButton"  text="Delete" onAction="#onDeleteSelected"
+                styleClass="danger-button" disable="true"/>
+        <Label fx:id="historyStatusLabel" text="" styleClass="status-label"/>
+    </HBox>
+
+</VBox>

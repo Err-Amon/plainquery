@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.plainquery.controller.MainController"
+            styleClass="root-pane">
+
+    <top>
+        <VBox>
+            <MenuBar styleClass="menu-bar">
+                <Menu text="File">
+                    <MenuItem text="Open CSV..." onAction="#onOpenFile" accelerator="Ctrl+O"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="Clear All Data" onAction="#onClearAll"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="Exit" onAction="#onExit" accelerator="Ctrl+Q"/>
+                </Menu>
+                <Menu text="Settings">
+                    <MenuItem text="Preferences..." onAction="#onOpenSettings" accelerator="Ctrl+,"/>
+                </Menu>
+                <Menu text="Help">
+                    <MenuItem text="About PlainQuery" onAction="#onAbout"/>
+                </Menu>
+            </MenuBar>
+            <ToolBar styleClass="tool-bar">
+                <Button text="Open CSV" onAction="#onOpenFile" styleClass="toolbar-button"/>
+                <Button text="Clear All" onAction="#onClearAll" styleClass="toolbar-button"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statusBar" text="Ready" styleClass="status-label"/>
+            </ToolBar>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.22, 0.78">
+
+            <VBox styleClass="file-panel" minWidth="160">
+                <Label text="Loaded Files" styleClass="panel-header"/>
+                <VBox fx:id="dropZone" styleClass="drop-zone" prefHeight="40"
+                      alignment="CENTER" onDragOver="#onDragOver"
+                      onDragDropped="#onDragDropped">
+                    <Label text="Drop CSV here" styleClass="drop-hint"/>
+                </VBox>
+                <ListView fx:id="fileListView" VBox.vgrow="ALWAYS" styleClass="file-list"/>
+                <HBox spacing="4" styleClass="file-panel-footer">
+                    <Button text="+" onAction="#onOpenFile" styleClass="small-button" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <Button text="-" onAction="#onRemoveFile" styleClass="small-button" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+
+            <VBox SplitPane.resizableWithParent="true">
+                <TabPane fx:id="mainTabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE"
+                         styleClass="main-tab-pane">
+                    <Tab text="Query">
+                        <fx:include source="QueryPanel.fxml" fx:id="queryPanel"/>
+                    </Tab>
+                    <Tab text="History">
+                        <fx:include source="HistoryPanel.fxml" fx:id="historyPanel"/>
+                    </Tab>
+                </TabPane>
+            </VBox>
+
+            <VBox styleClass="profile-panel" minWidth="180">
+                <fx:include source="ProfilePanel.fxml" fx:id="profilePanel"/>
+            </VBox>
+
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <HBox styleClass="bottom-bar">
+            <padding><Insets top="4" bottom="4" left="8" right="8"/></padding>
+            <Label fx:id="rowCountBar" text="" styleClass="bottom-label"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
