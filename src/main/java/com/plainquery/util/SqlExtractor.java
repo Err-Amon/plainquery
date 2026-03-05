@@ -21,7 +21,9 @@ public final class SqlExtractor {
     private SqlExtractor() {}
 
     public static String extract(String aiResponse) throws SqlExtractionException {
-        Objects.requireNonNull(aiResponse, "AI response must not be null");
+        if (aiResponse == null) {
+            throw new SqlExtractionException("AI response must not be null");
+        }
 
         String trimmed = aiResponse.trim();
         if (trimmed.isEmpty()) {
@@ -40,7 +42,10 @@ public final class SqlExtractor {
 
         String upperTrimmed = trimmed.toUpperCase();
         if (upperTrimmed.startsWith("SELECT")) {
-            String cleaned = trimmed.replace(";", "").trim();
+            String cleaned = trimmed.trim();
+            if (!cleaned.endsWith(";")) {
+                cleaned = cleaned + ";";
+            }
             if (!cleaned.isEmpty()) {
                 return cleaned;
             }
@@ -57,7 +62,10 @@ public final class SqlExtractor {
         while (matcher.find()) {
             String candidate = matcher.group(1).trim();
             if (candidate.toUpperCase().contains("SELECT")) {
-                last = candidate.replace(";", "").trim();
+                last = candidate.trim();
+                if (!last.endsWith(";")) {
+                    last = last + ";";
+                }
             }
         }
         return last;
@@ -68,7 +76,10 @@ public final class SqlExtractor {
         String last = null;
         while (matcher.find()) {
             String candidate = matcher.group(1).trim();
-            last = candidate.replace(";", "").trim();
+            last = candidate.trim();
+            if (!last.endsWith(";")) {
+                last = last + ";";
+            }
         }
         return last;
     }

@@ -9,9 +9,8 @@ public final class TableNameSanitizer {
     private TableNameSanitizer() {}
 
     public static String sanitize(String filename) {
-        Objects.requireNonNull(filename, "Filename must not be null");
-        if (filename.isBlank()) {
-            throw new IllegalArgumentException("Filename must not be blank");
+        if (filename == null || filename.isBlank()) {
+            return "table";
         }
 
         String base = stripExtension(filename.trim());
@@ -22,7 +21,7 @@ public final class TableNameSanitizer {
         }
 
         if (Character.isDigit(replaced.charAt(0))) {
-            replaced = "t_" + replaced;
+            replaced = "_" + replaced;
         }
 
         if (replaced.length() > MAX_LENGTH) {

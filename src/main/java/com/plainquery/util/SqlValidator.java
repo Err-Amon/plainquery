@@ -33,7 +33,9 @@ public final class SqlValidator {
     private SqlValidator() {}
 
     public static void validate(String sql) throws SqlValidationException {
-        Objects.requireNonNull(sql, "SQL must not be null");
+        if (sql == null) {
+            throw new SqlValidationException("SQL must not be null");
+        }
 
         String trimmed = sql.trim();
 
