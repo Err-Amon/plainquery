@@ -29,14 +29,14 @@ public final class ProfileController {
     private static final Logger LOG = Logger.getLogger(ProfileController.class.getName());
 
     @FXML private ComboBox<String>           tableSelector;
-    @FXML private TableView<ColumnStatRow>   statsTable;
-    @FXML private TableColumn<ColumnStatRow, String> colName;
-    @FXML private TableColumn<ColumnStatRow, String> colType;
-    @FXML private TableColumn<ColumnStatRow, String> colMin;
-    @FXML private TableColumn<ColumnStatRow, String> colMax;
-    @FXML private TableColumn<ColumnStatRow, String> colDistinct;
-    @FXML private TableColumn<ColumnStatRow, String> colNulls;
-    @FXML private Label                      statusLabel;
+    @FXML private TableView<ColumnStatRow>   profileTable;
+    @FXML private TableColumn<ColumnStatRow, String> colNameCol;
+    @FXML private TableColumn<ColumnStatRow, String> colTypeCol;
+    @FXML private TableColumn<ColumnStatRow, String> colMinCol;
+    @FXML private TableColumn<ColumnStatRow, String> colMaxCol;
+    @FXML private TableColumn<ColumnStatRow, String> colDistinctCol;
+    @FXML private TableColumn<ColumnStatRow, String> colNullCol;
+    @FXML private Label                      profileStatusLabel;
 
     private SchemaService  schemaService;
     private SqliteExecutor executor;
@@ -55,16 +55,24 @@ public final class ProfileController {
 
     @FXML
     public void initialize() {
-        colName.setCellValueFactory(new PropertyValueFactory<>("columnName"));
-        colType.setCellValueFactory(new PropertyValueFactory<>("columnType"));
-        colMin.setCellValueFactory(new PropertyValueFactory<>("min"));
-        colMax.setCellValueFactory(new PropertyValueFactory<>("max"));
-        colDistinct.setCellValueFactory(new PropertyValueFactory<>("distinct"));
-        colNulls.setCellValueFactory(new PropertyValueFactory<>("nullCount"));
+        colNameCol.setCellValueFactory(new PropertyValueFactory<>("columnName"));
+        colTypeCol.setCellValueFactory(new PropertyValueFactory<>("columnType"));
+        colMinCol.setCellValueFactory(new PropertyValueFactory<>("min"));
+        colMaxCol.setCellValueFactory(new PropertyValueFactory<>("max"));
+        colDistinctCol.setCellValueFactory(new PropertyValueFactory<>("distinct"));
+        colNullCol.setCellValueFactory(new PropertyValueFactory<>("nullCount"));
 
         tableSelector.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) loadProfile(newVal);
         });
+    }
+
+    @FXML
+    private void onTableSelected() {
+        String selectedTable = tableSelector.getValue();
+        if (selectedTable != null) {
+            loadProfile(selectedTable);
+        }
     }
 
     public void refreshTableList() {
@@ -100,14 +108,14 @@ public final class ProfileController {
         task.setOnSucceeded(e -> {
             ObservableList<ColumnStatRow> data =
                 FXCollections.observableArrayList(task.getValue());
-            statsTable.setItems(data);
-            statusLabel.setText("");
+            profileTable.setItems(data);
+            profileStatusLabel.setText("");
         });
 
         task.setOnFailed(e -> {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
-            Platform.runLater(() -> statusLabel.setText("Profile error: " + msg));
+            Platform.runLater(() -> profileStatusLabel.setText("Profile error: " + msg));
             LOG.warning("Profile load failed: " + msg);
         });
 

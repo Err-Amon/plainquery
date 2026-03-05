@@ -27,8 +27,10 @@
 
     <TableView fx:id="resultsTable"
                VBox.vgrow="ALWAYS"
-               styleClass="results-table"
-               placeholder="&lt;Label text='No results to display'/&gt;">
+               styleClass="results-table">
+        <placeholder>
+            <Label text="No results to display"/>
+        </placeholder>
     </TableView>
 
 </VBox>

@@ -29,9 +29,9 @@ public final class HistoryController {
 
     private static final int DEFAULT_RECENT_LIMIT = 100;
 
-    @FXML private ListView<QueryHistoryEntry> historyList;
+    @FXML private ListView<QueryHistoryEntry> historyListView;
     @FXML private TextField                   searchField;
-    @FXML private Label                       statusLabel;
+    @FXML private Label                       historyStatusLabel;
 
     private HistoryService historyService;
     private Consumer<String> onSelectQuery;
@@ -46,11 +46,11 @@ public final class HistoryController {
 
     @FXML
     public void initialize() {
-        historyList.setCellFactory(lv -> new HistoryCell());
+        historyListView.setCellFactory(lv -> new HistoryCell());
 
-        historyList.setOnMouseClicked(event -> {
+        historyListView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                QueryHistoryEntry selected = historyList.getSelectionModel().getSelectedItem();
+                QueryHistoryEntry selected = historyListView.getSelectionModel().getSelectedItem();
                 if (selected != null && onSelectQuery != null) {
                     onSelectQuery.accept(selected.getNaturalLanguage());
                 }
@@ -79,20 +79,57 @@ public final class HistoryController {
         task.setOnSucceeded(e -> {
             ObservableList<QueryHistoryEntry> items =
                 FXCollections.observableArrayList(task.getValue());
-            historyList.setItems(items);
-            statusLabel.setText(items.size() + " entries");
+            historyListView.setItems(items);
+            historyStatusLabel.setText(items.size() + " entries");
         });
 
         task.setOnFailed(e -> {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
-            Platform.runLater(() -> statusLabel.setText("Error: " + msg));
+            Platform.runLater(() -> historyStatusLabel.setText("Error: " + msg));
             LOG.warning("History load failed: " + msg);
         });
 
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    @FXML
+    private void onSearch() {
+        String term = searchField.getText();
+        if (term == null || term.isBlank()) {
+            loadRecent();
+        } else {
+            search(term);
+        }
+    }
+
+    @FXML
+    private void onShowRecent() {
+        loadRecent();
+    }
+
+    @FXML
+    private void onReloadSelected() {
+        QueryHistoryEntry selected = historyListView.getSelectionModel().getSelectedItem();
+        if (selected != null && onSelectQuery != null) {
+            onSelectQuery.accept(selected.getNaturalLanguage());
+        }
+    }
+
+    @FXML
+    private void onDelete() {
+        QueryHistoryEntry selected = historyListView.getSelectionModel().getSelectedItem();
+        if (selected == null || historyService == null) return;
+
+        try {
+            historyService.deleteById(selected.getId());
+            loadRecent();
+        } catch (QueryException e) {
+            historyStatusLabel.setText("Error: " + e.getMessage());
+            LOG.warning("Delete history entry failed: " + e.getMessage());
+        }
     }
 
     private void search(String term) {
@@ -108,14 +145,14 @@ public final class HistoryController {
         task.setOnSucceeded(e -> {
             ObservableList<QueryHistoryEntry> items =
                 FXCollections.observableArrayList(task.getValue());
-            historyList.setItems(items);
-            statusLabel.setText(items.size() + " results");
+            historyListView.setItems(items);
+            historyStatusLabel.setText(items.size() + " results");
         });
 
         task.setOnFailed(e -> {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
-            Platform.runLater(() -> statusLabel.setText("Search error: " + msg));
+            Platform.runLater(() -> historyStatusLabel.setText("Search error: " + msg));
         });
 
         Thread thread = new Thread(task);
@@ -125,29 +162,15 @@ public final class HistoryController {
 
     @FXML
     private void onToggleStar() {
-        QueryHistoryEntry selected = historyList.getSelectionModel().getSelectedItem();
+        QueryHistoryEntry selected = historyListView.getSelectionModel().getSelectedItem();
         if (selected == null || historyService == null) return;
 
         try {
             historyService.toggleStar(selected.getId());
             loadRecent();
         } catch (QueryException e) {
-            statusLabel.setText("Error: " + e.getMessage());
+            historyStatusLabel.setText("Error: " + e.getMessage());
             LOG.warning("Toggle star failed: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void onDelete() {
-        QueryHistoryEntry selected = historyList.getSelectionModel().getSelectedItem();
-        if (selected == null || historyService == null) return;
-
-        try {
-            historyService.deleteById(selected.getId());
-            loadRecent();
-        } catch (QueryException e) {
-            statusLabel.setText("Error: " + e.getMessage());
-            LOG.warning("Delete history entry failed: " + e.getMessage());
         }
     }
 
@@ -165,14 +188,14 @@ public final class HistoryController {
         task.setOnSucceeded(e -> {
             ObservableList<QueryHistoryEntry> items =
                 FXCollections.observableArrayList(task.getValue());
-            historyList.setItems(items);
-            statusLabel.setText(items.size() + " starred");
+            historyListView.setItems(items);
+            historyStatusLabel.setText(items.size() + " starred");
         });
 
         task.setOnFailed(e -> {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
-            Platform.runLater(() -> statusLabel.setText("Error: " + msg));
+            Platform.runLater(() -> historyStatusLabel.setText("Error: " + msg));
         });
 
         Thread thread = new Thread(task);

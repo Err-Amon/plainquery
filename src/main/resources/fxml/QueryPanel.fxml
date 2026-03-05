@@ -45,7 +45,7 @@
                       prefRowCount="5"
                       styleClass="sql-editor"/>
             <HBox spacing="8">
-                <Button text="Run SQL" onAction="#onRunSql" styleClass="secondary-button"/>
+                <Button fx:id="runSqlButton" text="Run SQL" onAction="#onRunSql" styleClass="secondary-button"/>
                 <Button text="Copy SQL" onAction="#onCopySql" styleClass="secondary-button"/>
             </HBox>
         </VBox>

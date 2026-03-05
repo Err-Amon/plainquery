@@ -109,7 +109,7 @@ public final class App extends Application {
 
         // wire controller dependencies
         queryController.setDependencies(queryService, chartService, schemaService, resultsController);
-        historyController.setDependencies(historyService, (String nl) -> queryController.setNaturalLanguageText(nl));
+        historyController.setDependencies(historyService, (String nl) -> queryController.setQuestionText(nl));
         profileController.setDependencies(schemaService, sqliteExecutor, dataConnection);
         mainController.setDependencies(csvLoaderService, schemaService, dataConnection, config,
                                        queryController, profileController, historyController);

@@ -27,12 +27,13 @@ public final class QueryController {
 
     private static final Logger LOG = Logger.getLogger(QueryController.class.getName());
 
-    @FXML private TextField   naturalLanguageField;
+    @FXML private javafx.scene.control.TextArea questionField;
     @FXML private Button      askButton;
-    @FXML private TitledPane  sqlEditorPane;
-    @FXML private TextArea    sqlEditorArea;
+    @FXML private TitledPane  sqlPane;
+    @FXML private TextArea    sqlEditor;
     @FXML private Button      runSqlButton;
-    @FXML private StackPane   chartPane;
+    @FXML private StackPane   chartContainer;
+    @FXML private javafx.scene.control.ProgressIndicator progressIndicator;
     @FXML private Label       statusLabel;
 
     private QueryService    queryService;
@@ -56,11 +57,9 @@ public final class QueryController {
 
     @FXML
     public void initialize() {
-        sqlEditorPane.setExpanded(false);
+        sqlPane.setExpanded(false);
 
-        naturalLanguageField.setOnAction(e -> onAsk());
-
-        naturalLanguageField.textProperty().addListener((obs, oldVal, newVal) -> {
+        questionField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (schemaService == null) return;
             List<String> allColumns = schemaService.getAllColumnNames();
             if (newVal == null || newVal.isBlank()) return;
@@ -69,20 +68,20 @@ public final class QueryController {
 
     public void loadSqlIntoEditor(String sql) {
         if (sql != null && !sql.isBlank()) {
-            sqlEditorArea.setText(sql);
-            sqlEditorPane.setExpanded(true);
+            sqlEditor.setText(sql);
+            sqlPane.setExpanded(true);
         }
     }
 
-    public void setNaturalLanguageText(String text) {
+    public void setQuestionText(String text) {
         if (text != null) {
-            naturalLanguageField.setText(text);
+            questionField.setText(text);
         }
     }
 
     @FXML
     private void onAsk() {
-        String question = naturalLanguageField.getText();
+        String question = questionField.getText();
         if (question == null || question.isBlank()) {
             showStatus("Please enter a question.", true);
             return;
@@ -125,7 +124,7 @@ public final class QueryController {
 
     @FXML
     private void onRunSql() {
-        String sql = sqlEditorArea.getText();
+        String sql = sqlEditor.getText();
         if (sql == null || sql.isBlank()) {
             showStatus("SQL editor is empty.", true);
             return;
@@ -167,15 +166,15 @@ public final class QueryController {
     }
 
     private void updateChart(QueryResult result) {
-        chartPane.getChildren().clear();
+        chartContainer.getChildren().clear();
         Optional<Node> chart = chartService.buildChart(result);
-        chart.ifPresent(node -> chartPane.getChildren().add(node));
+        chart.ifPresent(node -> chartContainer.getChildren().add(node));
     }
 
     private void setControlsDisabled(boolean disabled) {
         askButton.setDisable(disabled);
         runSqlButton.setDisable(disabled);
-        naturalLanguageField.setDisable(disabled);
+        questionField.setDisable(disabled);
     }
 
     private void showStatus(String message, boolean isError) {
@@ -183,5 +182,21 @@ public final class QueryController {
         statusLabel.setStyle(isError
             ? "-fx-text-fill: #e74c3c;"
             : "-fx-text-fill: #bdc3c7;");
+    }
+
+    @FXML
+    private void onClearQuestion() {
+        questionField.clear();
+    }
+
+    @FXML
+    private void onCopySql() {
+        String sql = sqlEditor.getText();
+        if (sql == null || sql.isBlank()) return;
+        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+        javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+        content.putString(sql);
+        clipboard.setContent(content);
+        showStatus("SQL copied to clipboard.", false);
     }
 }

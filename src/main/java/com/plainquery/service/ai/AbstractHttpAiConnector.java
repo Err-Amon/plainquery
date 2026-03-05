@@ -83,6 +83,7 @@ public abstract class AbstractHttpAiConnector implements AiConnector {
         if (statusCode < 200 || statusCode >= 300) {
             throw new AiConnectorException(
                 "AI API returned HTTP " + statusCode
+                + ". Response body: " + response.body()
                 + ". Check your API key and provider settings.");
         }
 

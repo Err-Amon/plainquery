@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public final class MainController {
 
@@ -200,6 +202,39 @@ public final class MainController {
     private void onExit() {
         Stage stage = (Stage) dropZone.getScene().getWindow();
         stage.close();
+    }
+
+    @FXML
+    private void onAbout() {
+        Alert a = new Alert(AlertType.INFORMATION);
+        a.setTitle("About PlainQuery");
+        a.setHeaderText("PlainQuery");
+        a.setContentText("PlainQuery — local-first CSV playground\nVersion 1.0.0");
+        a.initOwner(dropZone.getScene().getWindow());
+        a.showAndWait();
+    }
+
+    @FXML
+    private void onRemoveFile() {
+        String sel = fileListView.getSelectionModel().getSelectedItem();
+        if (sel != null) {
+            loadedFiles.remove(sel);
+            setStatus("Removed: " + sel, false);
+        }
+    }
+
+    @FXML
+    private void onDragOver(DragEvent event) {
+        if (dropZone != null && dropZone.getOnDragOver() != null) {
+            dropZone.getOnDragOver().handle(event);
+        }
+    }
+
+    @FXML
+    private void onDragDropped(DragEvent event) {
+        if (dropZone != null && dropZone.getOnDragDropped() != null) {
+            dropZone.getOnDragDropped().handle(event);
+        }
     }
 
     private void setStatus(String message, boolean isError) {

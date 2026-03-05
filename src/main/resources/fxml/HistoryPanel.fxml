@@ -16,9 +16,9 @@
         <padding><Insets top="10" bottom="6" left="10" right="10"/></padding>
         <Label text="Query History" styleClass="panel-header"/>
         <TextField fx:id="searchField"
-                   promptText="Search history..."
-                   onAction="#onSearch"
-                   styleClass="search-field"/>
+               promptText="Search history..."
+               onAction="#onSearch"
+               styleClass="search-field"/>
         <HBox spacing="6">
             <Button text="Search" onAction="#onSearch" styleClass="secondary-button"/>
             <Button text="Starred" onAction="#onShowStarred" styleClass="secondary-button"/>
@@ -36,7 +36,7 @@
                 styleClass="secondary-button" disable="true"/>
         <Button fx:id="starButton"    text="Star / Unstar" onAction="#onToggleStar"
                 styleClass="secondary-button" disable="true"/>
-        <Button fx:id="deleteButton"  text="Delete" onAction="#onDeleteSelected"
+        <Button fx:id="deleteButton"  text="Delete" onAction="#onDelete"
                 styleClass="danger-button" disable="true"/>
         <Label fx:id="historyStatusLabel" text="" styleClass="status-label"/>
     </HBox>
