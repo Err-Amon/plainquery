@@ -107,9 +107,10 @@ public final class App extends Application {
         ProfileController profileController = new ProfileController();
         MainController mainController = new MainController();
 
-        // wire controller dependencies
+         // wire controller dependencies
         queryController.setDependencies(queryService, chartService, schemaService, resultsController);
         historyController.setDependencies(historyService, (String nl) -> queryController.setQuestionText(nl));
+        historyController.setOnLoadSqlCallback((String sql) -> queryController.loadSqlIntoEditor(sql));
         profileController.setDependencies(schemaService, sqliteExecutor, dataConnection);
         mainController.setDependencies(csvLoaderService, schemaService, dataConnection, config,
                                        queryController, profileController, historyController);

@@ -15,7 +15,17 @@ public interface HistoryService {
 
     List<QueryHistoryEntry> getStarred() throws QueryException;
 
+    List<QueryHistoryEntry> getAll() throws QueryException;
+
+    QueryHistoryEntry getById(long id) throws QueryException;
+
     void toggleStar(long id) throws QueryException;
 
     void deleteById(long id) throws QueryException;
+
+    void deleteAll() throws QueryException;
+
+    long count() throws QueryException;
+
+    long countStarred() throws QueryException;
 }

@@ -19,10 +19,12 @@
                promptText="Search history..."
                onAction="#onSearch"
                styleClass="search-field"/>
-        <HBox spacing="6">
+         <HBox spacing="6">
             <Button text="Search" onAction="#onSearch" styleClass="secondary-button"/>
             <Button text="Starred" onAction="#onShowStarred" styleClass="secondary-button"/>
             <Button text="Recent" onAction="#onShowRecent" styleClass="secondary-button"/>
+            <Button text="All" onAction="#onShowAll" styleClass="secondary-button"/>
+            <Button text="Clear All" onAction="#onDeleteAll" styleClass="danger-button"/>
         </HBox>
     </VBox>
 
@@ -30,9 +32,11 @@
               VBox.vgrow="ALWAYS"
               styleClass="history-list"/>
 
-    <HBox spacing="6" styleClass="history-footer">
+     <HBox spacing="6" styleClass="history-footer">
         <padding><Insets top="6" bottom="6" left="8" right="8"/></padding>
         <Button fx:id="reloadButton"  text="Load Query" onAction="#onReloadSelected"
+                styleClass="secondary-button" disable="true"/>
+        <Button fx:id="loadSqlButton" text="Load SQL" onAction="#onLoadSql"
                 styleClass="secondary-button" disable="true"/>
         <Button fx:id="starButton"    text="Star / Unstar" onAction="#onToggleStar"
                 styleClass="secondary-button" disable="true"/>

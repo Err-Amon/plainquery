@@ -50,6 +50,25 @@ public final class HistoryServiceImpl implements HistoryService {
 
     private static final String SQL_DELETE =
         "DELETE FROM query_history WHERE id = ?";
+    
+    private static final String SQL_DELETE_ALL =
+        "DELETE FROM query_history";
+    
+    private static final String SQL_ALL =
+        "SELECT id, natural_language, generated_sql, executed_at, starred "
+        + "FROM query_history "
+        + "ORDER BY executed_at DESC";
+    
+    private static final String SQL_GET_BY_ID =
+        "SELECT id, natural_language, generated_sql, executed_at, starred "
+        + "FROM query_history "
+        + "WHERE id = ?";
+    
+    private static final String SQL_COUNT =
+        "SELECT COUNT(*) FROM query_history";
+    
+    private static final String SQL_COUNT_STARRED =
+        "SELECT COUNT(*) FROM query_history WHERE starred = 1";
 
     private final Connection connection;
 
@@ -135,6 +154,72 @@ public final class HistoryServiceImpl implements HistoryService {
         } catch (SQLException e) {
             throw new QueryException("Failed to delete history entry id=" + id
                 + ": " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteAll() throws QueryException {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_DELETE_ALL)) {
+            stmt.executeUpdate();
+            LOG.fine("Deleted all history entries");
+        } catch (SQLException e) {
+            throw new QueryException("Failed to delete all history entries: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<QueryHistoryEntry> getAll() throws QueryException {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_ALL)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                return mapEntries(rs);
+            }
+        } catch (SQLException e) {
+            throw new QueryException("Failed to fetch all history entries: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public QueryHistoryEntry getById(long id) throws QueryException {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_GET_BY_ID)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    List<QueryHistoryEntry> entries = mapEntries(rs);
+                    return entries.isEmpty() ? null : entries.get(0);
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new QueryException("Failed to fetch history entry id=" + id
+                + ": " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long count() throws QueryException {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_COUNT)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new QueryException("Failed to count history entries: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long countStarred() throws QueryException {
+        try (PreparedStatement stmt = connection.prepareStatement(SQL_COUNT_STARRED)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new QueryException("Failed to count starred history entries: " + e.getMessage(), e);
         }
     }
 

@@ -24,8 +24,8 @@ public abstract class AbstractHttpAiConnector implements AiConnector {
     private static final Logger LOG =
         Logger.getLogger(AbstractHttpAiConnector.class.getName());
 
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration REQUEST_TIMEOUT  = Duration.ofSeconds(30);
+    protected static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+    protected static final Duration REQUEST_TIMEOUT  = Duration.ofSeconds(30);
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 

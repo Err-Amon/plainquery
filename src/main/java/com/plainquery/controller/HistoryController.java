@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -32,6 +33,10 @@ public final class HistoryController {
     @FXML private ListView<QueryHistoryEntry> historyListView;
     @FXML private TextField                   searchField;
     @FXML private Label                       historyStatusLabel;
+    @FXML private Button                      reloadButton;
+    @FXML private Button                      loadSqlButton;
+    @FXML private Button                      starButton;
+    @FXML private Button                      deleteButton;
 
     private HistoryService historyService;
     private Consumer<String> onSelectQuery;
@@ -201,6 +206,80 @@ public final class HistoryController {
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    @FXML
+    private void onShowAll() {
+        if (historyService == null) return;
+
+        Task<List<QueryHistoryEntry>> task = new Task<>() {
+            @Override
+            protected List<QueryHistoryEntry> call() throws QueryException {
+                return historyService.getAll();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            ObservableList<QueryHistoryEntry> items =
+                FXCollections.observableArrayList(task.getValue());
+            historyListView.setItems(items);
+            historyStatusLabel.setText(items.size() + " entries");
+        });
+
+        task.setOnFailed(e -> {
+            String msg = task.getException() != null
+                ? task.getException().getMessage() : "Unknown error";
+            Platform.runLater(() -> historyStatusLabel.setText("Error: " + msg));
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    @FXML
+    private void onDeleteAll() {
+        if (historyService == null) return;
+
+        // Confirm deletion
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+            javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete All History");
+        alert.setHeaderText("Are you sure you want to delete all query history?");
+        alert.setContentText("This action cannot be undone.");
+        
+        alert.initOwner(historyListView.getScene().getWindow());
+        
+        alert.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                try {
+                    historyService.deleteAll();
+                    loadRecent();
+                } catch (QueryException e) {
+                    historyStatusLabel.setText("Error: " + e.getMessage());
+                    LOG.warning("Delete all history failed: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    @FXML
+    private void onLoadSql() {
+        QueryHistoryEntry selected = historyListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            // We need to pass the SQL to QueryController
+            // Let's add a callback for this
+            if (onLoadSqlCallback != null) {
+                onLoadSqlCallback.accept(selected.getGeneratedSql());
+            }
+        }
+    }
+
+    // Callback to load SQL into editor
+    private Consumer<String> onLoadSqlCallback;
+    
+    public void setOnLoadSqlCallback(Consumer<String> callback) {
+        this.onLoadSqlCallback = callback;
     }
 
     private final class HistoryCell extends ListCell<QueryHistoryEntry> {
