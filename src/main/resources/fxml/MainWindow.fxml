@@ -29,6 +29,8 @@
                 <Menu text="File">
                     <MenuItem text="Open CSV..." onAction="#onOpenFile" accelerator="Ctrl+O"/>
                     <SeparatorMenuItem/>
+                    <MenuItem text="Manage Sessions" onAction="#onManageSessions" accelerator="Ctrl+S"/>
+                    <SeparatorMenuItem/>
                     <MenuItem text="Clear All Data" onAction="#onClearAll"/>
                     <SeparatorMenuItem/>
                     <MenuItem text="Exit" onAction="#onExit" accelerator="Ctrl+Q"/>

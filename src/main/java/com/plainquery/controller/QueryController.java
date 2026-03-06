@@ -179,7 +179,16 @@ public final class QueryController {
     private void updateChart(QueryResult result) {
         chartContainer.getChildren().clear();
         Optional<Node> chart = chartService.buildChart(result);
-        chart.ifPresent(node -> chartContainer.getChildren().add(node));
+        if (chart.isPresent()) {
+            chartContainer.getChildren().add(chart.get());
+        } else {
+            // Display message when no chart is suitable
+            javafx.scene.control.Label noChartLabel = new javafx.scene.control.Label(
+                "No suitable chart type for this data\nTry queries with time series, categorical, or numeric data");
+            noChartLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-text-alignment: center;");
+            noChartLabel.setWrapText(true);
+            chartContainer.getChildren().add(noChartLabel);
+        }
     }
 
     private void setControlsDisabled(boolean disabled) {

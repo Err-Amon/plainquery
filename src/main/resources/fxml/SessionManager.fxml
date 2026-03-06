@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.plainquery.controller.SessionController"
+            styleClass="root"
+            prefHeight="500.0" prefWidth="400.0">
+
+    <top>
+        <VBox spacing="10" styleClass="top-section">
+            <padding><Insets top="10" left="10" right="10" bottom="0"/></padding>
+            <Label text="Query Sessions" styleClass="title"/>
+            <TextField fx:id="sessionNameField" promptText="Enter session name" styleClass="text-field"/>
+            <HBox spacing="5">
+                <Button text="Create" onAction="#onCreateSession" styleClass="primary-button"/>
+                <Button text="Rename" onAction="#onRenameSession" styleClass="secondary-button"/>
+                <Button text="Delete" onAction="#onDeleteSession" styleClass="danger-button"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox styleClass="center-section">
+            <padding><Insets top="5" left="10" right="10" bottom="10"/></padding>
+            <Label text="Available Sessions" styleClass="section-label"/>
+            <ListView fx:id="sessionListView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <VBox spacing="10" styleClass="bottom-section">
+            <HBox spacing="5">
+                <Button text="Select Session" onAction="#onSelectSession" styleClass="primary-button"/>
+                <Button text="Close" onAction="#onClose" styleClass="secondary-button"/>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

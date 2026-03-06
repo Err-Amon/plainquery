@@ -15,6 +15,8 @@ import com.plainquery.service.CsvLoaderService;
 import com.plainquery.service.CsvLoaderServiceImpl;
 import com.plainquery.service.HistoryService;
 import com.plainquery.service.HistoryServiceImpl;
+import com.plainquery.service.QuerySessionService;
+import com.plainquery.service.QuerySessionServiceImpl;
 import com.plainquery.service.QueryService;
 import com.plainquery.service.QueryServiceImpl;
 import com.plainquery.service.SchemaService;
@@ -108,12 +110,13 @@ public final class App extends Application {
         MainController mainController = new MainController();
 
          // wire controller dependencies
+        QuerySessionService querySessionService = new QuerySessionServiceImpl();
         queryController.setDependencies(queryService, chartService, schemaService, resultsController);
         historyController.setDependencies(historyService, (String nl) -> queryController.setQuestionText(nl));
         historyController.setOnLoadSqlCallback((String sql) -> queryController.loadSqlIntoEditor(sql));
         profileController.setDependencies(schemaService, sqliteExecutor, dataConnection);
         mainController.setDependencies(csvLoaderService, schemaService, dataConnection, config,
-                                       queryController, profileController, historyController);
+                                       queryController, profileController, historyController, querySessionService);
 
         loader.setControllerFactory(controllerClass -> {
             if (controllerClass == MainController.class) return mainController;

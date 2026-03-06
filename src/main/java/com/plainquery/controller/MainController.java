@@ -4,7 +4,9 @@ import com.plainquery.config.AppConfig;
 import com.plainquery.exception.CsvLoadException;
 import com.plainquery.exception.InsufficientMemoryException;
 import com.plainquery.model.CsvLoadResult;
+import com.plainquery.model.QuerySession;
 import com.plainquery.service.CsvLoaderService;
+import com.plainquery.service.QuerySessionService;
 import com.plainquery.service.SchemaService;
 
 import javafx.application.Platform;
@@ -43,13 +45,14 @@ public final class MainController {
     @FXML private ListView<String>   fileListView;
     @FXML private Label              statusBar;
 
-    private CsvLoaderService  csvLoaderService;
-    private SchemaService     schemaService;
-    private Connection        connection;
-    private AppConfig         config;
-    private QueryController   queryController;
-    private ProfileController profileController;
-    private HistoryController historyController;
+    private CsvLoaderService     csvLoaderService;
+    private SchemaService        schemaService;
+    private Connection           connection;
+    private AppConfig            config;
+    private QueryController      queryController;
+    private ProfileController    profileController;
+    private HistoryController    historyController;
+    private QuerySessionService  querySessionService;
 
     private final ObservableList<String> loadedFiles = FXCollections.observableArrayList();
 
@@ -59,7 +62,8 @@ public final class MainController {
                                 AppConfig config,
                                 QueryController queryController,
                                 ProfileController profileController,
-                                HistoryController historyController) {
+                                HistoryController historyController,
+                                QuerySessionService querySessionService) {
         Objects.requireNonNull(csvLoaderService,  "CsvLoaderService must not be null");
         Objects.requireNonNull(schemaService,     "SchemaService must not be null");
         Objects.requireNonNull(connection,        "Connection must not be null");
@@ -67,6 +71,7 @@ public final class MainController {
         Objects.requireNonNull(queryController,   "QueryController must not be null");
         Objects.requireNonNull(profileController, "ProfileController must not be null");
         Objects.requireNonNull(historyController, "HistoryController must not be null");
+        Objects.requireNonNull(querySessionService, "QuerySessionService must not be null");
         this.csvLoaderService  = csvLoaderService;
         this.schemaService     = schemaService;
         this.connection        = connection;
@@ -74,6 +79,7 @@ public final class MainController {
         this.queryController   = queryController;
         this.profileController = profileController;
         this.historyController = historyController;
+        this.querySessionService = querySessionService;
     }
 
     @FXML
@@ -212,6 +218,40 @@ public final class MainController {
         a.setContentText("PlainQuery — local-first CSV playground\nVersion 1.0.0");
         a.initOwner(dropZone.getScene().getWindow());
         a.showAndWait();
+    }
+    
+    @FXML
+    private void onManageSessions() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/SessionManager.fxml"));
+            Parent root = loader.load();
+            
+            SessionController sessionController = loader.getController();
+            sessionController.setQuerySessionService(querySessionService);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Session Manager");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(dropZone.getScene().getWindow());
+            stage.setScene(new Scene(root));
+            stage.setResizable(true);
+            stage.sizeToScene();
+            
+            sessionController.setStage(stage);
+            sessionController.setSessionChangeListener(new SessionController.SessionChangeListener() {
+                @Override
+                public void onSessionChanged(QuerySession newSession) {
+                    // Handle session change
+                    LOG.log(java.util.logging.Level.INFO, "Session changed to: " + newSession.getName());
+                    setStatus("Session active: " + newSession.getName(), false);
+                }
+            });
+            
+            stage.showAndWait();
+        } catch (IOException e) {
+            LOG.log(java.util.logging.Level.WARNING, "Could not open session manager dialog: " + e.getMessage());
+            setStatus("Could not open session manager.", true);
+        }
     }
 
     @FXML
