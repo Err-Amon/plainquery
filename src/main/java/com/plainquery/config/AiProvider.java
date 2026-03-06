@@ -7,8 +7,8 @@ public enum AiProvider {
         "llama3-8b-8192"
     ),
     GEMINI(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-        "gemini-1.5-flash"
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+        "gemini-1.5-flash-latest"
     );
 
     private final String endpointUrl;

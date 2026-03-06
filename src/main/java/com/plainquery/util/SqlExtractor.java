@@ -14,7 +14,7 @@ public final class SqlExtractor {
     );
 
     private static final Pattern SELECT_STATEMENT = Pattern.compile(
-        "(SELECT\\b[^;]*)",
+        "(SELECT\\b[\\s\\S]*?\\bFROM\\b[^;\\n]*)",
         Pattern.CASE_INSENSITIVE | Pattern.DOTALL
     );
 
@@ -30,30 +30,70 @@ public final class SqlExtractor {
             throw new SqlExtractionException("AI response is empty");
         }
 
+        System.err.println("DEBUG: Raw AI response for extraction: " + aiResponse);
+
         String fromCodeBlock = extractFromCodeBlock(trimmed);
         if (fromCodeBlock != null) {
-            return fromCodeBlock.trim();
+            String sanitized = sanitizeSql(fromCodeBlock);
+            System.err.println("DEBUG: Extracted from code block: " + sanitized);
+            return sanitized;
         }
 
         String fromSelect = extractFromSelectKeyword(trimmed);
         if (fromSelect != null) {
-            return fromSelect.trim();
+            String sanitized = sanitizeSql(fromSelect);
+            System.err.println("DEBUG: Extracted from select keyword: " + sanitized);
+            return sanitized;
         }
 
         String upperTrimmed = trimmed.toUpperCase();
-        if (upperTrimmed.startsWith("SELECT")) {
-            String cleaned = trimmed.trim();
-            if (!cleaned.endsWith(";")) {
-                cleaned = cleaned + ";";
+        if (upperTrimmed.contains("SELECT")) {
+            // Find the SELECT statement in the response
+            int selectStart = upperTrimmed.indexOf("SELECT");
+            int selectEnd = findSelectEnd(trimmed, selectStart);
+            
+            String extractedSql = trimmed.substring(selectStart, selectEnd + 1).trim();
+            
+            // Remove semicolon if present at end
+            if (extractedSql.endsWith(";")) {
+                extractedSql = extractedSql.substring(0, extractedSql.length() - 1).trim();
             }
-            if (!cleaned.isEmpty()) {
-                return cleaned;
+            
+            System.err.println("DEBUG: Extracted from direct search: " + extractedSql);
+            
+            if (!extractedSql.isEmpty()) {
+                String sanitized = sanitizeSql(extractedSql);
+                return sanitized;
             }
         }
+
+        // Debug information to help identify extraction failures
+        System.err.println("SQL Extraction failed for response:");
+        System.err.println("-----------------------------------");
+        System.err.println(aiResponse);
+        System.err.println("-----------------------------------");
 
         throw new SqlExtractionException(
             "No SQL SELECT statement found in AI response. Response began with: "
             + trimmed.substring(0, Math.min(trimmed.length(), 80)));
+    }
+    
+    private static int findSelectEnd(String response, int startIndex) {
+        int endIndex = response.length() - 1;
+        
+        // Look for typical end indicators
+        int semicolonIndex = response.indexOf(";", startIndex);
+        int newLineIndex = response.indexOf("\n", startIndex);
+        
+        if (semicolonIndex != -1 && semicolonIndex < endIndex) {
+            endIndex = semicolonIndex;
+        }
+        
+        if (newLineIndex != -1 && newLineIndex < endIndex) {
+            endIndex = newLineIndex - 1; // exclude the newline character
+        }
+        
+        return endIndex;
     }
 
     private static String extractFromCodeBlock(String response) {
@@ -61,10 +101,10 @@ public final class SqlExtractor {
         String last = null;
         while (matcher.find()) {
             String candidate = matcher.group(1).trim();
-            if (candidate.toUpperCase().contains("SELECT")) {
+            if (isValidSelect(candidate)) {
                 last = candidate.trim();
-                if (!last.endsWith(";")) {
-                    last = last + ";";
+                if (last.endsWith(";")) {
+                    last = last.substring(0, last.length() - 1).trim();
                 }
             }
         }
@@ -76,11 +116,31 @@ public final class SqlExtractor {
         String last = null;
         while (matcher.find()) {
             String candidate = matcher.group(1).trim();
-            last = candidate.trim();
-            if (!last.endsWith(";")) {
-                last = last + ";";
+            if (isValidSelect(candidate)) {
+                last = candidate.trim();
+                if (last.endsWith(";")) {
+                    last = last.substring(0, last.length() - 1).trim();
+                }
             }
         }
         return last;
+    }
+
+    private static boolean isValidSelect(String candidate) {
+        if (candidate == null) return false;
+        String up = candidate.toUpperCase();
+        // Must contain FROM and SELECT
+        return up.contains("SELECT") && up.contains(" FROM ");
+    }
+
+    private static String sanitizeSql(String sql) {
+        if (sql == null) return null;
+        String s = sql.trim();
+        // Fix quoted star: SELECT "*" -> SELECT *
+        s = s.replaceAll("SELECT\\s+\"\\*\"", "SELECT *");
+        s = s.replaceAll("select\\s+\"\\*\"", "select *");
+        // Collapse multiple spaces
+        s = s.replaceAll("\\s+", " ");
+        return s.trim();
     }
 }

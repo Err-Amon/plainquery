@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public final class GroqConnector extends AbstractHttpAiConnector {
 
-    private static final String MODEL = "llama3-8b-8192";
+    private static final String MODEL = "qwen/qwen3-32b";
     private static final double TEMPERATURE = 0.0;
     private static final int MAX_TOKENS = 512;
 
@@ -51,6 +51,21 @@ public final class GroqConnector extends AbstractHttpAiConnector {
 
     @Override
     protected String extractRawText(JsonNode responseRoot) throws AiConnectorException {
+        // Check for error response
+        JsonNode errorNode = responseRoot.get("error");
+        if (errorNode != null) {
+            JsonNode msg = errorNode.get("message");
+            JsonNode type = errorNode.get("type");
+            String errorMsg = "Groq API error";
+            if (type != null) {
+                errorMsg += ": " + type.asText();
+            }
+            if (msg != null) {
+                errorMsg += ": " + msg.asText();
+            }
+            throw new AiConnectorException(errorMsg);
+        }
+
         JsonNode choices = responseRoot.get("choices");
         if (choices == null || !choices.isArray() || choices.isEmpty()) {
             throw new AiConnectorException(

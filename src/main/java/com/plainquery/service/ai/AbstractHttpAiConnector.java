@@ -81,10 +81,14 @@ public abstract class AbstractHttpAiConnector implements AiConnector {
 
         int statusCode = response.statusCode();
         if (statusCode < 200 || statusCode >= 300) {
-            throw new AiConnectorException(
-                "AI API returned HTTP " + statusCode
-                + ". Response body: " + response.body()
-                + ". Check your API key and provider settings.");
+            String errorMsg = "AI API returned HTTP " + statusCode;
+            String responseBody = response.body();
+            if (responseBody != null && !responseBody.isBlank()) {
+                errorMsg += ". Response: " + responseBody;
+            }
+            errorMsg += ". Check your API key and provider settings.";
+            LOG.warning(errorMsg);
+            throw new AiConnectorException(errorMsg);
         }
 
         String rawText;

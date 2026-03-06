@@ -72,7 +72,7 @@ public final class QueryServiceImpl implements QueryService {
                 "Could not translate question to SQL: " + e.getMessage(), e);
         }
 
-        LOG.fine("AI generated SQL: " + generatedSql.substring(0, Math.min(generatedSql.length(), 120)));
+        LOG.warning("AI generated SQL: " + generatedSql);
 
         try {
             SqlValidator.validate(generatedSql);
