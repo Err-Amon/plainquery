@@ -46,6 +46,7 @@
                       styleClass="sql-editor"/>
             <HBox spacing="8">
                 <Button fx:id="runSqlButton" text="Run SQL" onAction="#onRunSql" styleClass="secondary-button"/>
+                <Button text="Format SQL" onAction="#onFormatSql" styleClass="secondary-button"/>
                 <Button text="Copy SQL" onAction="#onCopySql" styleClass="secondary-button"/>
             </HBox>
         </VBox>

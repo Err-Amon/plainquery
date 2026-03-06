@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class ResultsController {
@@ -138,10 +139,21 @@ public final class ResultsController {
                 exportToCsv(file, currentResult);
             }
             rowCountLabel.setText("Exported to: " + file.getName());
-        } catch (IOException e) {
-            LOG.warning("Export failed: " + e.getMessage());
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Export failed: " + e.getMessage(), e);
             rowCountLabel.setText("Export failed: " + e.getMessage());
+            showErrorDialog("Export Failed", "An error occurred while exporting results:", e.getMessage());
         }
+    }
+
+    private void showErrorDialog(String title, String header, String message) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+            javafx.scene.control.Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+        alert.initOwner(resultsTable.getScene().getWindow());
+        alert.showAndWait();
     }
 
     private void exportToCsv(File file, QueryResult result) throws IOException {

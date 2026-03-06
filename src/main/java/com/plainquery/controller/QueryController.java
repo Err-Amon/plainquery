@@ -73,6 +73,15 @@ public final class QueryController {
         }
     }
 
+    @FXML
+    private void onFormatSql() {
+        String sql = sqlEditor.getText();
+        if (sql != null && !sql.isBlank()) {
+            String formattedSql = com.plainquery.util.SqlSyntaxHighlighter.formatSql(sql);
+            sqlEditor.setText(formattedSql);
+        }
+    }
+
     public void setQuestionText(String text) {
         if (text != null) {
             questionField.setText(text);
@@ -113,8 +122,9 @@ public final class QueryController {
             Platform.runLater(() -> {
                 showStatus("Error: " + msg, true);
                 setControlsDisabled(false);
+                showErrorDialog("Query Failed", "An error occurred while processing your query:", msg);
             });
-            LOG.warning("Natural language query failed: " + msg);
+            LOG.log(java.util.logging.Level.WARNING, "Natural language query failed: " + msg, ex);
         });
 
         Thread thread = new Thread(task);
@@ -156,8 +166,9 @@ public final class QueryController {
             Platform.runLater(() -> {
                 showStatus("Error: " + msg, true);
                 setControlsDisabled(false);
+                showErrorDialog("SQL Execution Failed", "An error occurred while executing the SQL:", msg);
             });
-            LOG.warning("SQL execution failed: " + msg);
+            LOG.log(java.util.logging.Level.WARNING, "SQL execution failed: " + msg, ex);
         });
 
         Thread thread = new Thread(task);
@@ -182,6 +193,16 @@ public final class QueryController {
         statusLabel.setStyle(isError
             ? "-fx-text-fill: #e74c3c;"
             : "-fx-text-fill: #bdc3c7;");
+    }
+
+    private void showErrorDialog(String title, String header, String message) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+            javafx.scene.control.Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+        alert.initOwner(questionField.getScene().getWindow());
+        alert.showAndWait();
     }
 
     @FXML

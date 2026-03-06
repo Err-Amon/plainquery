@@ -24,6 +24,16 @@ import java.util.logging.Logger;
 public final class HistoryController {
 
     private static final Logger LOG = Logger.getLogger(HistoryController.class.getName());
+    
+    private void showErrorDialog(String title, String header, String message) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+            javafx.scene.control.Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+        alert.initOwner(historyListView.getScene().getWindow());
+        alert.showAndWait();
+    }
 
     private static final DateTimeFormatter DISPLAY_FORMAT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -62,6 +72,23 @@ public final class HistoryController {
             }
         });
 
+        // Update button states when selection changes
+        historyListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            boolean hasSelection = newVal != null;
+            if (reloadButton != null) {
+                reloadButton.setDisable(!hasSelection);
+            }
+            if (loadSqlButton != null) {
+                loadSqlButton.setDisable(!hasSelection);
+            }
+            if (starButton != null) {
+                starButton.setDisable(!hasSelection);
+            }
+            if (deleteButton != null) {
+                deleteButton.setDisable(!hasSelection);
+            }
+        });
+
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isBlank()) {
                 loadRecent();
@@ -92,7 +119,8 @@ public final class HistoryController {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
             Platform.runLater(() -> historyStatusLabel.setText("Error: " + msg));
-            LOG.warning("History load failed: " + msg);
+            LOG.log(java.util.logging.Level.WARNING, "History load failed: " + msg, task.getException());
+            Platform.runLater(() -> showErrorDialog("History Load Failed", "Could not load query history:", msg));
         });
 
         Thread thread = new Thread(task);
@@ -133,7 +161,8 @@ public final class HistoryController {
             loadRecent();
         } catch (QueryException e) {
             historyStatusLabel.setText("Error: " + e.getMessage());
-            LOG.warning("Delete history entry failed: " + e.getMessage());
+            LOG.log(java.util.logging.Level.WARNING, "Delete history entry failed: " + e.getMessage(), e);
+            showErrorDialog("Delete Failed", "Could not delete history entry:", e.getMessage());
         }
     }
 
@@ -158,6 +187,8 @@ public final class HistoryController {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
             Platform.runLater(() -> historyStatusLabel.setText("Search error: " + msg));
+            LOG.log(java.util.logging.Level.WARNING, "History search failed: " + msg, task.getException());
+            Platform.runLater(() -> showErrorDialog("Search Failed", "Could not search query history:", msg));
         });
 
         Thread thread = new Thread(task);
@@ -175,7 +206,8 @@ public final class HistoryController {
             loadRecent();
         } catch (QueryException e) {
             historyStatusLabel.setText("Error: " + e.getMessage());
-            LOG.warning("Toggle star failed: " + e.getMessage());
+            LOG.log(java.util.logging.Level.WARNING, "Toggle star failed: " + e.getMessage(), e);
+            showErrorDialog("Star Toggle Failed", "Could not toggle star status:", e.getMessage());
         }
     }
 
@@ -201,6 +233,8 @@ public final class HistoryController {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
             Platform.runLater(() -> historyStatusLabel.setText("Error: " + msg));
+            LOG.log(java.util.logging.Level.WARNING, "History operation failed: " + msg, task.getException());
+            Platform.runLater(() -> showErrorDialog("Operation Failed", "Could not complete the operation:", msg));
         });
 
         Thread thread = new Thread(task);
@@ -230,6 +264,8 @@ public final class HistoryController {
             String msg = task.getException() != null
                 ? task.getException().getMessage() : "Unknown error";
             Platform.runLater(() -> historyStatusLabel.setText("Error: " + msg));
+            LOG.log(java.util.logging.Level.WARNING, "History operation failed: " + msg, task.getException());
+            Platform.runLater(() -> showErrorDialog("Operation Failed", "Could not complete the operation:", msg));
         });
 
         Thread thread = new Thread(task);
@@ -257,7 +293,8 @@ public final class HistoryController {
                     loadRecent();
                 } catch (QueryException e) {
                     historyStatusLabel.setText("Error: " + e.getMessage());
-                    LOG.warning("Delete all history failed: " + e.getMessage());
+                    LOG.log(java.util.logging.Level.WARNING, "Delete all history failed: " + e.getMessage(), e);
+                    showErrorDialog("Delete All Failed", "Could not delete all history entries:", e.getMessage());
                 }
             }
         });
