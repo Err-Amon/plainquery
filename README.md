@@ -1,54 +1,56 @@
-# PlainQuery
+PlainQuery is a local-first desktop application that allows users to query CSV files using natural language. It provides an intuitive interface for data analysis without requiring knowledge of SQL.
 
-A local-first desktop application for querying CSV files using natural language.
+## Features
 
-## Requirements
+- Query CSV files using natural language
+- SQL generation from natural language queries
+- Real-time results display with data visualization
+- Query history and session management
+- Multiple AI provider support (OpenAI, Llama 3, Groq, Gemini)
+- CSV, Excel, and JSON export capabilities
+- SQL syntax highlighting and formatting
+- Interactive charts (bar, line, pie, scatter)
+- Dark theme with modern UI design
+- Cross-platform support (Windows, macOS, Linux)
 
-- Java 17 or later
-- Maven 3.8 or later
+## Technologies
 
-## Build
+- JavaFX 21
+- SQLite
+- Apache POI
+- Jackson JSON
+- JFreeChart
+- Maven
 
-```
-mvn clean package
-```
+## Installation
 
-## Run
+1. Ensure you have Java 21 installed
+2. Clone the repository
+3. Navigate to the project directory
+4. Run `mvn clean install` to build the project
+5. Run `mvn javafx:run` to start the application
 
-```
-mvn javafx:run
-```
+## Usage
 
-Or with the fat JAR (after package):
-
-```
-java -jar target/plainquery-fat.jar
-```
+1. Launch the application
+2. Load one or more CSV files
+3. Enter a natural language query in the query input field
+4. Click "Run Query" to generate and execute SQL
+5. View results in the results panel
+6. Visualize data with interactive charts
+7. Save queries to history for future reference
+8. Manage query sessions for better organization
 
 ## Configuration
 
-On first launch, open Settings to configure:
+- API keys for AI providers can be configured in the Settings panel
+- SQL generation and validation settings can be customized
+- Display preferences and chart settings are available
 
-- AI provider (Groq or Gemini)
-- API key for the selected provider
-- Database mode (in-memory or file-based)
-- Maximum preview rows (default 10,000)
+## Contributing
 
-## Privacy
-
-Only the natural language question and table/column names with sample values are
-sent to the configured AI API. Row data never leaves the local machine.
-
-## Architecture
-
-```
-controller  ->  service interfaces  ->  service implementations
-                                              |
-                                         db / util
-```
-
-No circular dependencies. All service wiring is done manually in App.java.
+Contributions are welcome. Please follow the standard GitHub workflow.
 
 ## License
 
-MIT
+PlainQuery is released under the MIT License.

@@ -9,6 +9,7 @@ import com.plainquery.model.QueryResult;
 import com.plainquery.model.TableSchema;
 import com.plainquery.service.ai.AiConnector;
 import com.plainquery.util.SqlValidator;
+import com.plainquery.util.SqlIdentifierQuoter;
 
 import java.sql.Connection;
 import java.util.List;
@@ -71,6 +72,10 @@ public final class QueryServiceImpl implements QueryService {
             throw new QueryException(
                 "Could not translate question to SQL: " + e.getMessage(), e);
         }
+
+        // Quote identifiers (table/column names) that contain spaces or
+        // special characters so SQLite accepts them. Uses loaded schemas.
+        generatedSql = SqlIdentifierQuoter.quoteIdentifiers(generatedSql, schemas);
 
         LOG.warning("AI generated SQL: " + generatedSql);
 

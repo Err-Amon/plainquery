@@ -1,10 +1,15 @@
 package com.plainquery.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class QuerySession {
     
     private final String id;
@@ -13,16 +18,22 @@ public class QuerySession {
     private LocalDateTime updatedAt;
     private List<QueryHistoryEntry> historyEntries;
     
-    public QuerySession(String id, String name, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    @JsonCreator
+    public QuerySession(
+            @JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("createdAt") LocalDateTime createdAt,
+            @JsonProperty("updatedAt") LocalDateTime updatedAt,
+            @JsonProperty("historyEntries") List<QueryHistoryEntry> historyEntries) {
         this.id = Objects.requireNonNull(id, "Session ID cannot be null");
         this.name = Objects.requireNonNull(name, "Session name cannot be null");
         this.createdAt = Objects.requireNonNull(createdAt, "Creation timestamp cannot be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "Update timestamp cannot be null");
-        this.historyEntries = new ArrayList<>();
+        this.historyEntries = historyEntries != null ? new ArrayList<>(historyEntries) : new ArrayList<>();
     }
     
     public QuerySession(String id, String name) {
-        this(id, name, LocalDateTime.now(), LocalDateTime.now());
+        this(id, name, LocalDateTime.now(), LocalDateTime.now(), null);
     }
     
     public String getId() {

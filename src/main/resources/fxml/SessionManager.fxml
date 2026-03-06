@@ -16,9 +16,9 @@
             prefHeight="500.0" prefWidth="400.0">
 
     <top>
-        <VBox spacing="10" styleClass="top-section">
+        <VBox spacing="10">
             <padding><Insets top="10" left="10" right="10" bottom="0"/></padding>
-            <Label text="Query Sessions" styleClass="title"/>
+            <Label text="Query Sessions" styleClass="panel-header"/>
             <TextField fx:id="sessionNameField" promptText="Enter session name" styleClass="text-field"/>
             <HBox spacing="5">
                 <Button text="Create" onAction="#onCreateSession" styleClass="primary-button"/>
@@ -29,7 +29,7 @@
     </top>
 
     <center>
-        <VBox styleClass="center-section">
+        <VBox>
             <padding><Insets top="5" left="10" right="10" bottom="10"/></padding>
             <Label text="Available Sessions" styleClass="section-label"/>
             <ListView fx:id="sessionListView" styleClass="list-view" VBox.vgrow="ALWAYS"/>
@@ -37,7 +37,7 @@
     </center>
 
     <bottom>
-        <VBox spacing="10" styleClass="bottom-section">
+        <VBox spacing="10">
             <HBox spacing="5">
                 <Button text="Select Session" onAction="#onSelectSession" styleClass="primary-button"/>
                 <Button text="Close" onAction="#onClose" styleClass="secondary-button"/>
