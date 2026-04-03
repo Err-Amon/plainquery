@@ -257,6 +257,16 @@ public final class MainController {
         String sel = fileListView.getSelectionModel().getSelectedItem();
         if (sel != null) {
             loadedFiles.remove(sel);
+            String tableName = sel.replaceAll("\\.csv$", "").toLowerCase();
+            schemaService.remove(tableName);
+            try {
+                connection.createStatement().executeUpdate("DROP TABLE IF EXISTS \"" + tableName + "\"");
+            } catch (Exception e) {
+                LOG.warning("Failed to drop table " + tableName + ": " + e.getMessage());
+            }
+            setStatus("Removed: " + sel, false);
+        }
+    }
             setStatus("Removed: " + sel, false);
         }
     }

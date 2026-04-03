@@ -1,9 +1,5 @@
 package com.plainquery.util;
 
-import javafx.scene.control.TextArea;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,70 +23,6 @@ public final class SqlSyntaxHighlighter {
     );
 
     private SqlSyntaxHighlighter() {}
-
-
-    public static void highlightSql(TextArea textArea, String sql) {
-        if (textArea == null || sql == null) return;
-
-        Matcher matcher = PATTERN.matcher(sql);
-        int lastIndex = 0;
-        TextFlow textFlow = new TextFlow();
-
-        while (matcher.find()) {
-            // Add non-matching text
-            if (matcher.start() > lastIndex) {
-                String plainText = sql.substring(lastIndex, matcher.start());
-                Text plain = new Text(plainText);
-                plain.getStyleClass().add("sql-plain");
-                textFlow.getChildren().add(plain);
-            }
-
-            // Add matching text with appropriate style
-            String matchedText = matcher.group();
-            Text text = new Text(matchedText);
-
-            if (matchedText.startsWith("--") || matchedText.startsWith("/*")) {
-                text.getStyleClass().add("sql-comment");
-            } else if (matchedText.startsWith("'") || matchedText.startsWith("\"")) {
-                text.getStyleClass().add("sql-string");
-            } else if (isKeyword(matchedText)) {
-                text.getStyleClass().add("sql-keyword");
-            } else if (isFunction(matchedText)) {
-                text.getStyleClass().add("sql-function");
-            } else if (isNumber(matchedText)) {
-                text.getStyleClass().add("sql-number");
-            } else if (isOperator(matchedText)) {
-                text.getStyleClass().add("sql-operator");
-            }
-
-            textFlow.getChildren().add(text);
-            lastIndex = matcher.end();
-        }
-
-        // Add remaining text
-        if (lastIndex < sql.length()) {
-            String plainText = sql.substring(lastIndex);
-            Text plain = new Text(plainText);
-            plain.getStyleClass().add("sql-plain");
-            textFlow.getChildren().add(plain);
-        }
-    }
-
-    private static boolean isKeyword(String text) {
-        return Pattern.compile(KEYWORD_PATTERN, Pattern.CASE_INSENSITIVE).matcher(text).matches();
-    }
-
-    private static boolean isFunction(String text) {
-        return Pattern.compile(FUNCTION_PATTERN, Pattern.CASE_INSENSITIVE).matcher(text).matches();
-    }
-
-    private static boolean isNumber(String text) {
-        return Pattern.compile(NUMBER_PATTERN).matcher(text).matches();
-    }
-
-    private static boolean isOperator(String text) {
-        return Pattern.compile(OPERATOR_PATTERN).matcher(text).matches();
-    }
 
 
     public static String formatSql(String sql) {

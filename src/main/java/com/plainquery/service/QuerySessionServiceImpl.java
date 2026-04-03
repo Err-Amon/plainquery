@@ -245,7 +245,7 @@ public class QuerySessionServiceImpl implements QuerySessionService {
         
         File sessionsDir = new File(SESSIONS_DIR);
         if (sessionsDir.exists()) {
-            File[] files = sessionsDir.listFiles();
+            File[] files = sessionsDir.listFiles((dir, name) -> name.endsWith(".json"));
             if (files != null) {
                 for (File file : files) {
                     file.delete();
@@ -265,12 +265,5 @@ public class QuerySessionServiceImpl implements QuerySessionService {
     @Override
     public boolean isEmpty() {
         return sessions.isEmpty();
-    }
-    
-    public List<QueryHistoryEntry> getAllHistoryEntries() {
-        return sessions.values().stream()
-                .filter(session -> session.getHistoryEntries() != null)
-                .flatMap(session -> session.getHistoryEntries().stream())
-                .collect(Collectors.toList());
     }
 }
