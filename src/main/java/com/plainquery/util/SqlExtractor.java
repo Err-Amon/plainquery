@@ -30,19 +30,15 @@ public final class SqlExtractor {
             throw new SqlExtractionException("AI response is empty");
         }
 
-        System.err.println("DEBUG: Raw AI response for extraction: " + aiResponse);
-
         String fromCodeBlock = extractFromCodeBlock(trimmed);
         if (fromCodeBlock != null) {
             String sanitized = sanitizeSql(fromCodeBlock);
-            System.err.println("DEBUG: Extracted from code block: " + sanitized);
             return sanitized;
         }
 
         String fromSelect = extractFromSelectKeyword(trimmed);
         if (fromSelect != null) {
             String sanitized = sanitizeSql(fromSelect);
-            System.err.println("DEBUG: Extracted from select keyword: " + sanitized);
             return sanitized;
         }
 
@@ -59,19 +55,11 @@ public final class SqlExtractor {
                 extractedSql = extractedSql.substring(0, extractedSql.length() - 1).trim();
             }
             
-            System.err.println("DEBUG: Extracted from direct search: " + extractedSql);
-            
             if (!extractedSql.isEmpty()) {
                 String sanitized = sanitizeSql(extractedSql);
                 return sanitized;
             }
         }
-
-        // Debug information to help identify extraction failures
-        System.err.println("SQL Extraction failed for response:");
-        System.err.println("-----------------------------------");
-        System.err.println(aiResponse);
-        System.err.println("-----------------------------------");
 
         throw new SqlExtractionException(
             "No SQL SELECT statement found in AI response. Response began with: "

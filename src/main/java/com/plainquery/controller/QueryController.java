@@ -108,12 +108,10 @@ public final class QueryController {
 
         task.setOnSucceeded(e -> {
             QueryResult result = task.getValue();
-            Platform.runLater(() -> {
-                resultsController.displayResult(result);
-                showStatus("Done. " + result.getRowCount() + " rows returned.", false);
-                setControlsDisabled(false);
-                updateChart(result);
-            });
+            resultsController.displayResult(result);
+            showStatus("Done. " + result.getRowCount() + " rows returned.", false);
+            setControlsDisabled(false);
+            updateChart(result);
         });
 
         task.setOnFailed(e -> {
@@ -152,12 +150,56 @@ public final class QueryController {
 
         task.setOnSucceeded(e -> {
             QueryResult result = task.getValue();
+            resultsController.displayResult(result);
+            showStatus("Done. " + result.getRowCount() + " rows returned.", false);
+            setControlsDisabled(false);
+            updateChart(result);
+        });
+
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            String msg = ex != null ? ex.getMessage() : "Unknown error";
             Platform.runLater(() -> {
-                resultsController.displayResult(result);
-                showStatus("Done. " + result.getRowCount() + " rows returned.", false);
+                showStatus("Error: " + msg, true);
                 setControlsDisabled(false);
-                updateChart(result);
+                showErrorDialog("SQL Execution Failed", "An error occurred while executing the SQL:", msg);
             });
+            LOG.log(java.util.logging.Level.WARNING, "SQL execution failed: " + msg, ex);
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+        setControlsDisabled(true);
+        showStatus("Executing SQL...", false);
+
+        Task<QueryResult> task = new Task<>() {
+            @Override
+            protected QueryResult call() throws QueryException {
+                return queryService.executeSql(sql.trim());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            QueryResult result = task.getValue();
+            resultsController.displayResult(result);
+            showStatus("Done. " + result.getRowCount() + " rows returned.", false);
+            setControlsDisabled(false);
+            updateChart(result);
+        });
+
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            String msg = ex != null ? ex.getMessage() : "Unknown error";
+            Platform.runLater(() -> {
+                showStatus("Error: " + msg, true);
+                setControlsDisabled(false);
+                showErrorDialog("Query Failed", "An error occurred while processing your query:", msg);
+            });
+            LOG.log(java.util.logging.Level.WARNING, "Natural language query failed: " + msg, ex);
+        });
         });
 
         task.setOnFailed(e -> {

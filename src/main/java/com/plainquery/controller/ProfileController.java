@@ -127,8 +127,15 @@ public final class ProfileController {
     private ColumnStatRow computeStats(String tableName, ColumnDefinition col)
             throws QueryException {
 
-        String quotedTable  = "\"" + tableName + "\"";
+        String quotedTable  = "\"" + tableName.replace("\"", "\"\"") + "\"";
         String quotedColumn = "\"" + col.getName().replace("\"", "\"\"") + "\"";
+
+        if (!quotedColumn.matches("^\"[a-zA-Z_][a-zA-Z0-9_]*\"$")) {
+            return new ColumnStatRow(
+                col.getName(),
+                col.getColumnType().name(),
+                "N/A", "N/A", "N/A", "N/A");
+        }
 
         String statSql = "SELECT "
             + "MIN(" + quotedColumn + ") AS min_val, "

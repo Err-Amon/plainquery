@@ -148,16 +148,14 @@ public final class MainController {
 
         task.setOnSucceeded(e -> {
             CsvLoadResult result = task.getValue();
-            Platform.runLater(() -> {
-                schemaService.register(result.getSchema());
-                if (!loadedFiles.contains(file.getName())) {
-                    loadedFiles.add(file.getName());
-                }
-                profileController.refreshTableList();
-                historyController.loadRecent();
-                setStatus("Loaded: " + result.getTableName()
-                    + " (" + result.getRowsInserted() + " rows)", false);
-            });
+            schemaService.register(result.getSchema());
+            if (!loadedFiles.contains(file.getName())) {
+                loadedFiles.add(file.getName());
+            }
+            profileController.refreshTableList();
+            historyController.loadRecent();
+            setStatus("Loaded: " + result.getTableName()
+                + " (" + result.getRowsInserted() + " rows)", false);
         });
 
         task.setOnFailed(e -> {

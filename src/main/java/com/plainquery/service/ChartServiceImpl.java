@@ -3,6 +3,7 @@ package com.plainquery.service;
 import com.plainquery.model.QueryResult;
 
 import javafx.embed.swing.SwingNode;
+import javafx.application.Platform;
 import javafx.scene.Node;
 
 import org.jfree.chart.ChartFactory;
@@ -23,7 +24,6 @@ import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 
-import javax.swing.SwingUtilities;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,7 +63,7 @@ public final class ChartServiceImpl implements ChartService {
 
             SwingNode swingNode = new SwingNode();
             JFreeChart finalChart = chart;
-            SwingUtilities.invokeLater(() -> swingNode.setContent(
+            Platform.runLater(() -> swingNode.setContent(
                 new org.jfree.chart.ChartPanel(finalChart)));
 
             return Optional.of(swingNode);

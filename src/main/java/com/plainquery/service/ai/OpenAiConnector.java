@@ -9,8 +9,6 @@ import java.net.http.HttpRequest;
 
 public class OpenAiConnector extends AbstractHttpAiConnector {
 
-    private static final String DEFAULT_MODEL = "gpt-4-turbo";
-
     public OpenAiConnector(String apiKey) {
         super(apiKey, AiProvider.OPENAI.getEndpointUrl());
     }
@@ -64,8 +62,8 @@ public class OpenAiConnector extends AbstractHttpAiConnector {
 
     private String escapeJsonString(String value) {
         if (value == null) return "";
-        return value.replace("\"", "\\\"")
-                   .replace("\\", "\\\\")
+        return value.replace("\\", "\\\\")
+                   .replace("\"", "\\\"")
                    .replace("\n", "\\n")
                    .replace("\r", "\\r")
                    .replace("\t", "\\t");
