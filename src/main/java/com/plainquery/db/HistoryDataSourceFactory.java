@@ -130,14 +130,6 @@ public final class HistoryDataSourceFactory implements AutoCloseable {
         }
     }
 
-    public synchronized boolean isOpen() {
-        try {
-            return connection != null && !connection.isClosed();
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
     @Override
     public synchronized void close() {
         if (connection != null) {

@@ -85,14 +85,6 @@ public class QuerySession {
         }
     }
     
-    public boolean isEmpty() {
-        return historyEntries == null || historyEntries.isEmpty();
-    }
-    
-    public int getEntryCount() {
-        return historyEntries != null ? historyEntries.size() : 0;
-    }
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,7 +105,7 @@ public class QuerySession {
                 ", name='" + name + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", entryCount=" + getEntryCount() +
                 '}';
     }
 }
+

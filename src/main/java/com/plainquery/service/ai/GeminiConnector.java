@@ -18,7 +18,6 @@ public final class GeminiConnector extends AbstractHttpAiConnector {
 
     public GeminiConnector(String apiKey, String endpointUrl) {
         super(apiKey, endpointUrl);
-        Objects.requireNonNull(endpointUrl, "Endpoint URL must not be null");
     }
 
     @Override

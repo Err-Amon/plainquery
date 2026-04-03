@@ -74,21 +74,6 @@ public final class DataSourceFactory implements AutoCloseable {
         }
     }
 
-    public synchronized void resetConnection() throws SQLException {
-        closeQuietly();
-        connection = openConnection();
-        configureConnection(connection);
-        LOG.fine("SQLite data connection reset");
-    }
-
-    public synchronized boolean isOpen() {
-        try {
-            return connection != null && !connection.isClosed();
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
     @Override
     public synchronized void close() {
         closeQuietly();

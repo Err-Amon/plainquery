@@ -47,9 +47,6 @@ PlainQuery is a local-first desktop application that allows users to query CSV f
 - SQL generation and validation settings can be customized
 - Display preferences and chart settings are available
 
-## Contributing
-
-Contributions are welcome. Please follow the standard GitHub workflow.
 
 ## License
 

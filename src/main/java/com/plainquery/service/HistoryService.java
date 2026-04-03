@@ -24,8 +24,4 @@ public interface HistoryService {
     void deleteById(long id) throws QueryException;
 
     void deleteAll() throws QueryException;
-
-    long count() throws QueryException;
-
-    long countStarred() throws QueryException;
 }

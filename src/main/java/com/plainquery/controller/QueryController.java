@@ -7,18 +7,15 @@ import com.plainquery.service.QueryService;
 import com.plainquery.service.SchemaService;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.StackPane;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -58,12 +55,6 @@ public final class QueryController {
     @FXML
     public void initialize() {
         sqlPane.setExpanded(false);
-
-        questionField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (schemaService == null) return;
-            List<String> allColumns = schemaService.getAllColumnNames();
-            if (newVal == null || newVal.isBlank()) return;
-        });
     }
 
     public void loadSqlIntoEditor(String sql) {
@@ -172,59 +163,12 @@ public final class QueryController {
         thread.start();
     }
 
-        setControlsDisabled(true);
-        showStatus("Executing SQL...", false);
-
-        Task<QueryResult> task = new Task<>() {
-            @Override
-            protected QueryResult call() throws QueryException {
-                return queryService.executeSql(sql.trim());
-            }
-        };
-
-        task.setOnSucceeded(e -> {
-            QueryResult result = task.getValue();
-            resultsController.displayResult(result);
-            showStatus("Done. " + result.getRowCount() + " rows returned.", false);
-            setControlsDisabled(false);
-            updateChart(result);
-        });
-
-        task.setOnFailed(e -> {
-            Throwable ex = task.getException();
-            String msg = ex != null ? ex.getMessage() : "Unknown error";
-            Platform.runLater(() -> {
-                showStatus("Error: " + msg, true);
-                setControlsDisabled(false);
-                showErrorDialog("Query Failed", "An error occurred while processing your query:", msg);
-            });
-            LOG.log(java.util.logging.Level.WARNING, "Natural language query failed: " + msg, ex);
-        });
-        });
-
-        task.setOnFailed(e -> {
-            Throwable ex = task.getException();
-            String msg = ex != null ? ex.getMessage() : "Unknown error";
-            Platform.runLater(() -> {
-                showStatus("Error: " + msg, true);
-                setControlsDisabled(false);
-                showErrorDialog("SQL Execution Failed", "An error occurred while executing the SQL:", msg);
-            });
-            LOG.log(java.util.logging.Level.WARNING, "SQL execution failed: " + msg, ex);
-        });
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
-    }
-
     private void updateChart(QueryResult result) {
         chartContainer.getChildren().clear();
         Optional<Node> chart = chartService.buildChart(result);
         if (chart.isPresent()) {
             chartContainer.getChildren().add(chart.get());
         } else {
-            // Display message when no chart is suitable
             javafx.scene.control.Label noChartLabel = new javafx.scene.control.Label(
                 "No suitable chart type for this data\nTry queries with time series, categorical, or numeric data");
             noChartLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-text-alignment: center;");

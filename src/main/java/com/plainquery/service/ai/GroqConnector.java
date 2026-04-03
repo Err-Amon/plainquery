@@ -16,7 +16,6 @@ public final class GroqConnector extends AbstractHttpAiConnector {
 
     public GroqConnector(String apiKey, String endpointUrl) {
         super(apiKey, endpointUrl);
-        Objects.requireNonNull(endpointUrl, "Endpoint URL must not be null");
     }
 
     @Override

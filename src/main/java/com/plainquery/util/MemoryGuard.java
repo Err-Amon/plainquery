@@ -42,11 +42,6 @@ public final class MemoryGuard {
         }
     }
 
-    public static long availableBytes() {
-        Runtime runtime = Runtime.getRuntime();
-        return runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
-    }
-
     private static long toMb(long bytes) {
         return bytes / (1024L * 1024L);
     }

@@ -63,12 +63,6 @@ public final class HistoryServiceImpl implements HistoryService {
         "SELECT id, natural_language, generated_sql, executed_at, starred "
         + "FROM query_history "
         + "WHERE id = ?";
-    
-    private static final String SQL_COUNT =
-        "SELECT COUNT(*) FROM query_history";
-    
-    private static final String SQL_COUNT_STARRED =
-        "SELECT COUNT(*) FROM query_history WHERE starred = 1";
 
     private final Connection connection;
 
@@ -192,34 +186,6 @@ public final class HistoryServiceImpl implements HistoryService {
         } catch (SQLException e) {
             throw new QueryException("Failed to fetch history entry id=" + id
                 + ": " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long count() throws QueryException {
-        try (PreparedStatement stmt = connection.prepareStatement(SQL_COUNT)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new QueryException("Failed to count history entries: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long countStarred() throws QueryException {
-        try (PreparedStatement stmt = connection.prepareStatement(SQL_COUNT_STARRED)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new QueryException("Failed to count starred history entries: " + e.getMessage(), e);
         }
     }
 

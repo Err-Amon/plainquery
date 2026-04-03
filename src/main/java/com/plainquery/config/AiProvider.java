@@ -13,10 +13,6 @@ public enum AiProvider {
     OPENAI(
         "https://api.openai.com/v1/chat/completions",
         "gpt-4-turbo"
-    ),
-    LLAMA3(
-        "https://api.groq.com/openai/v1/chat/completions",
-        "llama3-70b-8192"
     );
 
     private final String endpointUrl;
