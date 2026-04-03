@@ -239,7 +239,6 @@ public final class MainController {
             sessionController.setSessionChangeListener(new SessionController.SessionChangeListener() {
                 @Override
                 public void onSessionChanged(QuerySession newSession) {
-                    // Handle session change
                     LOG.log(java.util.logging.Level.INFO, "Session changed to: " + newSession.getName());
                     setStatus("Session active: " + newSession.getName(), false);
                 }
@@ -267,30 +266,11 @@ public final class MainController {
             setStatus("Removed: " + sel, false);
         }
     }
-            setStatus("Removed: " + sel, false);
-        }
-    }
-
-    @FXML
-    private void onDragOver(DragEvent event) {
-        if (dropZone != null && dropZone.getOnDragOver() != null) {
-            dropZone.getOnDragOver().handle(event);
-        }
-    }
-
-    @FXML
-    private void onDragDropped(DragEvent event) {
-        if (dropZone != null && dropZone.getOnDragDropped() != null) {
-            dropZone.getOnDragDropped().handle(event);
-        }
-    }
 
     private void setStatus(String message, boolean isError) {
-        Platform.runLater(() -> {
-            statusBar.setText(message);
-            statusBar.setStyle(isError
-                ? "-fx-text-fill: #e74c3c;"
-                : "-fx-text-fill: #bdc3c7;");
-        });
+        statusBar.setText(message);
+        statusBar.setStyle(isError
+            ? "-fx-text-fill: #e74c3c;"
+            : "-fx-text-fill: #bdc3c7;");
     }
 }
