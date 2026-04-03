@@ -56,9 +56,8 @@
 
             <VBox styleClass="file-panel" minWidth="160">
                 <Label text="Loaded Files" styleClass="panel-header"/>
-                <VBox fx:id="dropZone" styleClass="drop-zone" prefHeight="40"
-                      alignment="CENTER" onDragOver="#onDragOver"
-                      onDragDropped="#onDragDropped">
+            <VBox fx:id="dropZone" styleClass="drop-zone" prefHeight="40"
+                  alignment="CENTER">
                     <Label text="Drop CSV here" styleClass="drop-hint"/>
                 </VBox>
                 <ListView fx:id="fileListView" VBox.vgrow="ALWAYS" styleClass="file-list"/>

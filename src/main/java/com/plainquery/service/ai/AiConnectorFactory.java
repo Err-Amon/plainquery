@@ -28,8 +28,6 @@ public final class AiConnectorFactory {
                 return new GeminiConnector(apiKey, provider.getEndpointUrl());
             case OPENAI:
                 return new OpenAiConnector(apiKey);
-            case LLAMA3:
-                return new GroqConnector(apiKey, provider.getEndpointUrl());
             default:
                 throw new IllegalStateException(
                     "Unsupported AI provider: " + provider.name());

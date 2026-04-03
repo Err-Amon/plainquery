@@ -121,31 +121,26 @@ public abstract class AbstractHttpAiConnector implements AiConnector {
 
     protected String buildPrompt(String question, List<TableSchema> schemas) {
         StringBuilder sb = new StringBuilder();
-        sb.append("You are a SQL expert. Given the following SQLite database schema, ");
-        sb.append("generate a single valid SQLite SELECT statement to answer the question.\n");
-        sb.append("Rules:\n");
-        sb.append("- Output ONLY the SQL statement, no explanation.\n");
-        sb.append("- Use only SELECT. No INSERT, UPDATE, DELETE, DROP, PRAGMA, or semicolons.\n");
-        sb.append("- Use table and column names exactly as shown below.\n");
-        sb.append("- Wrap column and table names in double quotes if they contain spaces.\n\n");
-        sb.append("Schema:\n");
+        sb.append("CRITICAL: You MUST respond with ONLY a valid SQLite SELECT statement.\n");
+        sb.append("DO NOT include any explanation, notes, or natural language.\n");
+        sb.append("DO NOT use semicolons at the end.\n\n");
+        sb.append("Database schema:\n");
 
         for (TableSchema schema : schemas) {
-            sb.append("Table: ").append(schema.getTableName()).append("\n");
-            sb.append("Columns:\n");
+            sb.append("Table \"").append(schema.getTableName()).append("\" with columns:\n");
             for (ColumnDefinition col : schema.getColumns()) {
-                sb.append("  - ").append(col.getName())
-                  .append(" (").append(col.getColumnType().sqlTypeName()).append(")");
+                sb.append("  - \"").append(col.getName()).append("\" of type ")
+                   .append(col.getColumnType().sqlTypeName());
                 if (!col.getSampleValues().isEmpty()) {
-                    sb.append(" samples: ").append(col.getSampleValues());
+                    sb.append(", example values: ").append(col.getSampleValues());
                 }
                 sb.append("\n");
             }
             sb.append("\n");
         }
 
-        sb.append("Question: ").append(question).append("\n");
-        sb.append("SQL:");
+        sb.append("\nQuestion: ").append(question).append("\n\n");
+        sb.append("Respond with ONLY the SQL query:\n");
         return sb.toString();
     }
 
