@@ -115,11 +115,9 @@ public final class ResultsController {
         if (currentResult == null || currentResult.isEmpty()) return;
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export Results");
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("CSV Files", "*.csv"),
-            new FileChooser.ExtensionFilter("JSON Files", "*.json"),
-            new FileChooser.ExtensionFilter("Excel Files", "*.xlsx")
+        fileChooser.setTitle("Export to CSV");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("CSV Files", "*.csv")
         );
         fileChooser.setInitialFileName("query_results.csv");
 
@@ -127,17 +125,8 @@ public final class ResultsController {
         if (file == null) return;
 
         try {
-            String fileName = file.getName().toLowerCase();
-            if (fileName.endsWith(".csv")) {
-                exportToCsv(file, currentResult);
-            } else if (fileName.endsWith(".json")) {
-                exportToJson(file, currentResult);
-            } else if (fileName.endsWith(".xlsx")) {
-                exportToExcel(file, currentResult);
-            } else {
-                // Default to CSV if no extension recognized
-                exportToCsv(file, currentResult);
-            }
+            ObservableList<ObservableList<String>> displayedItems = resultsTable.getItems();
+            exportToCsv(file, displayedItems);
             rowCountLabel.setText("Exported to: " + file.getName());
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Export failed: " + e.getMessage(), e);
@@ -156,96 +145,15 @@ public final class ResultsController {
         alert.showAndWait();
     }
 
-    private void exportToCsv(File file, QueryResult result) throws IOException {
+    private void exportToCsv(File file, ObservableList<ObservableList<String>> displayedItems) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            List<String> cols = result.getColumnNames();
+            List<String> cols = currentResult.getColumnNames();
             writer.write(String.join(",", escapeCsvRow(cols)));
             writer.newLine();
 
-            for (List<Object> row : result.getRows()) {
-                List<String> cells = new ArrayList<>();
-                for (Object cell : row) {
-                    cells.add(cell != null ? cell.toString() : "");
-                }
-                writer.write(String.join(",", escapeCsvRow(cells)));
+            for (ObservableList<String> row : displayedItems) {
+                writer.write(String.join(",", escapeCsvRow(row)));
                 writer.newLine();
-            }
-        }
-    }
-
-    private void exportToJson(File file, QueryResult result) throws IOException {
-        List<String> columnNames = result.getColumnNames();
-        List<List<Object>> rows = result.getRows();
-        
-        List<java.util.Map<String, Object>> jsonData = new ArrayList<>();
-        for (List<Object> row : rows) {
-            java.util.Map<String, Object> jsonRow = new java.util.HashMap<>();
-            for (int i = 0; i < columnNames.size(); i++) {
-                Object value = row.get(i);
-                jsonRow.put(columnNames.get(i), value);
-            }
-            jsonData.add(jsonRow);
-        }
-        
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        mapper.writeValue(file, jsonData);
-    }
-
-    private void exportToExcel(File file, QueryResult result) throws IOException {
-        try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
-            org.apache.poi.xssf.usermodel.XSSFSheet sheet = workbook.createSheet("Results");
-            
-            // Create header row
-            org.apache.poi.xssf.usermodel.XSSFRow headerRow = sheet.createRow(0);
-            for (int i = 0; i < result.getColumnNames().size(); i++) {
-                org.apache.poi.xssf.usermodel.XSSFCell cell = headerRow.createCell(i);
-                cell.setCellValue(result.getColumnNames().get(i));
-                
-                // Style header
-                org.apache.poi.xssf.usermodel.XSSFCellStyle headerStyle = workbook.createCellStyle();
-                org.apache.poi.xssf.usermodel.XSSFFont font = workbook.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-                cell.setCellStyle(headerStyle);
-            }
-            
-            // Create data rows
-            for (int i = 0; i < result.getRows().size(); i++) {
-                org.apache.poi.xssf.usermodel.XSSFRow dataRow = sheet.createRow(i + 1);
-                List<Object> rowData = result.getRows().get(i);
-                
-                for (int j = 0; j < rowData.size(); j++) {
-                    org.apache.poi.xssf.usermodel.XSSFCell cell = dataRow.createCell(j);
-                    Object value = rowData.get(j);
-                    
-                    if (value instanceof Number) {
-                        if (value instanceof Integer) {
-                            cell.setCellValue((Integer) value);
-                        } else if (value instanceof Long) {
-                            cell.setCellValue((Long) value);
-                        } else if (value instanceof Double) {
-                            cell.setCellValue((Double) value);
-                        } else if (value instanceof Float) {
-                            cell.setCellValue((Float) value);
-                        } else {
-                            cell.setCellValue(value.toString());
-                        }
-                    } else if (value instanceof Boolean) {
-                        cell.setCellValue((Boolean) value);
-                    } else if (value != null) {
-                        cell.setCellValue(value.toString());
-                    }
-                }
-            }
-            
-            // Auto-size columns
-            for (int i = 0; i < result.getColumnNames().size(); i++) {
-                sheet.autoSizeColumn(i);
-            }
-            
-            // Write to file
-            try (java.io.FileOutputStream outputStream = new java.io.FileOutputStream(file)) {
-                workbook.write(outputStream);
             }
         }
     }
